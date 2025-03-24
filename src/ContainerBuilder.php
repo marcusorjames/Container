@@ -559,7 +559,13 @@ class ContainerBuilder
                 $buffer .= "\tif (isset(\$this->resolvedSharedServices[" . var_export($serviceName, true) . "])) return \$this->resolvedSharedServices[" . var_export($serviceName, true) . "];\n";
             }
 
-            $buffer .= "\t\$instance = new " . $serviceClassName . "(". $this->generateArgumentsCode($serviceDefinition->getArguments()) .");\n";
+            $factoryMethod = current( $serviceDefinition->getMetaData()['factory'][0] ?? []);
+
+            if (is_string($factoryMethod)) {
+                $buffer .= "\t\$instance = " . $serviceClassName . '::' . $factoryMethod . "(". $this->generateArgumentsCode($serviceDefinition->getArguments()) .");\n";
+            } else {
+                $buffer .= "\t\$instance = new " . $serviceClassName . "(". $this->generateArgumentsCode($serviceDefinition->getArguments()) .");\n";
+            }
 
             foreach($serviceDefinition->getMethodCalls() as list($callName, $callArguments))
             {
